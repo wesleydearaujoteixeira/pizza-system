@@ -3,6 +3,7 @@ import Controller from "../controllers/globalController";
 
 const mainRouter = Router();
 
-mainRouter.get("/", Controller.exibir);
+mainRouter.post("/register", Controller.register);
+mainRouter.post("/login", Controller.login);
 
 export default mainRouter;

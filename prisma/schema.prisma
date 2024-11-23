@@ -15,7 +15,7 @@ datasource db {
 
 model User {
   
-  id String @id @default(uuid())
+  user_id String @id @default(uuid())
   name String
   email String 
   password String
@@ -25,3 +25,67 @@ model User {
   @@map("users")
   
 } 
+
+model Category {
+  category_id String @id @default(uuid())
+  name String
+  created_at DateTime? @default(now())
+  updated_at DateTime? @default(now())
+
+  @@map("categories")
+  products Product[]
+}
+
+model Product {
+
+    product_id String @id @default(uuid())
+    name String
+    price String
+    description String
+    banner String
+
+    created_at DateTime? @default(now())
+    updated_at DateTime? @default(now())
+
+    category Category @relation(fields: [category_id], references: [category_id])
+
+    @@map("products")
+
+    category_id String
+
+    Items Item[]
+
+}
+
+model Order {
+  order_id String @id @default(uuid())
+  table Int 
+  status Boolean @default(false)
+  draft Boolean @default(false)
+  name String
+
+  created_at DateTime? @default(now())
+  updated_at DateTime? @default(now())
+
+  Items Item[]
+
+  @@map("order")
+}
+
+model Item {
+
+  id String @id @default(uuid())
+  amount Int
+
+  created_at DateTime? @default(now())
+  updated_at DateTime? @default(now())
+
+  order Order @relation(fields: [order_id_item], references: [order_id])
+  product Product @relation(fields: [product_item], references: [product_id])
+
+  @@map("items")
+
+  order_id_item String
+  product_item String 
+  
+}
