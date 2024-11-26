@@ -59,6 +59,85 @@ export default class Controller {
         }
 
 
-}
+    }
+
+    public static async registerCategory(req: Request, res: Response): Promise<any> {
+
+
+        try {
+
+            const { name } = req.body;
+
+
+            if(!name) {
+                return res.status(404).json({ message: "É preciso informar o nome da categoria!"});
+            }
+
+            const category = await ServiceUsers.categoriesServices(name);
+
+            return res.status(201).json({message: "categoria criada!", category});
+
+
+
+
+        } catch (error) {
+            return res.status(500).json({ message: "Falha na requisição! "});
+            
+        }
+
+
+    }
+
+    public static async getCategories(req: Request, res: Response): Promise<any> {
+
+
+        try {
+
+           
+
+            const category = await ServiceUsers.getCategoriesServices();
+
+            return res.status(200).json({message: "aqui está todas as categorias!", category});
+
+
+
+
+        } catch (error) {
+            return res.status(500).json({ message: "Falha na requisição! "});
+            
+        }
+
+
+    }
+
+    public static async registerProduct(req: Request, res: Response): Promise<any> {
+
+        try {
+            
+            const { name, price, description, category_id } = req.body;
+            const imagem = req.file?.filename as string;
+
+            if(!name ||!price ||!description || !category_id) {
+                return res.status(400).json({ message: "Todos os campos são obrigatórios."});
+            }
+
+            if(!imagem) {
+                return res.status(400).json({ message: "Imagem é obrigatória."});
+            }
+
+            let banner = imagem;
+
+            const product = await ServiceUsers.registerProducts({name, price, description, banner, category_id});
+
+            return res.status(201).json({ message: "Product registered successfully!", product });
+
+
+
+        } catch (error) {
+            
+        }
+
+    }
+
 
 }

@@ -1,4 +1,4 @@
-import { Session, User } from "../types/TypesUser";
+import { Product, Session, User } from "../types/TypesUser";
 import prismaClient from "../prisma";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
@@ -95,6 +95,56 @@ export default class ServiceUsers {
 
 
 
+
+    }
+
+    public static async categoriesServices( name: string ): Promise<any> {
+
+        const categories = await prismaClient.category.create({
+            data: {
+                name,
+            },
+            select: {
+                category_id: true,
+                name: true,
+            }
+        });
+
+        return categories;
+
+
+
+
+    }
+
+    public static async getCategoriesServices(): Promise<any> {
+
+        const categories = await prismaClient.category.findMany();
+        return categories;
+
+    }
+
+
+    public static async registerProducts( {name, price, description, banner, category_id}: Product): Promise<any> {
+
+        const products = await prismaClient.product.create({
+            data: {
+                name,
+                price,
+                description,
+                banner,
+                category_id,
+            },
+            select: {
+                category_id: true,
+                name: true,
+                price: true,
+                description: true,
+                banner: true,
+            }
+        });
+
+        return products;
 
     }
 
