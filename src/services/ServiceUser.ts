@@ -1,4 +1,4 @@
-import { Product, Session, User } from "../types/TypesUser";
+import { ItemType, Order, Product, Session, User } from "../types/TypesUser";
 import prismaClient from "../prisma";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
@@ -124,6 +124,24 @@ export default class ServiceUsers {
 
     }
 
+    public static async getAllProducts(): Promise<any> {
+
+
+        const products = await prismaClient.product.findMany({
+            select: {
+                category_id: true,
+                name: true,
+                price: true,
+                description: true,
+                banner: true,
+            }
+        });
+
+        return products;
+
+
+    }
+
 
     public static async registerProducts( {name, price, description, banner, category_id}: Product): Promise<any> {
 
@@ -147,5 +165,185 @@ export default class ServiceUsers {
         return products;
 
     }
+
+    public static async getProductsByCategory(category_id: string): Promise<any>{
+
+
+        try {
+            
+            const categoryByProduct = await prismaClient.product.findMany({
+                where: {
+                    category_id
+                },
+              
+            });
+
+            return categoryByProduct;
+
+
+        } catch (error) {
+            
+        }
+    
+
+    }
+
+    public static async getOrder( {table, name}: Order): Promise<any> {
+            
+        const order = await prismaClient.order.create({
+            
+            data:{
+                    table,
+                    name,
+                },
+              
+            });
+
+        return order;
+
+    }
+
+    public static async deleteOrderId(order_id: string): Promise<any> {
+
+
+        const orderExist = await prismaClient.order.findFirst({
+            where: {
+                order_id
+            }
+        });
+
+        if(!orderExist) {
+            return;
+        }
+        
+       const orderDelete = await prismaClient.order.delete({
+         where: {
+                order_id: order_id
+             }
+       });
+
+        return orderDelete;
+    }
+
+    public static async getOrdersAll(): Promise<any> {
+        
+        const orders = await prismaClient.order.findMany();
+
+        return orders;
+    }
+
+    public static async addItem({order_id, product_id, amount}: ItemType): Promise<any> {
+
+        const Item = await prismaClient.item.create({
+            
+            data:{
+                    order_id_item: order_id,
+                    product_item: product_id,
+                    amount,
+                },
+              
+            });
+
+        return Item;
+        
+
+    }
+
+
+    public static async deleteItemService (item_id: string): Promise<any> {
+
+    const itemExist = await prismaClient.item.findFirst({
+        where: {
+                id: item_id
+            }
+    });
+
+    if(!itemExist) {
+        return;
+    }
+
+
+    const deleteItem = await prismaClient.item.delete({
+         where: {
+                id: item_id
+             }
+       });
+
+       return deleteItem;
+
+    }
+
+
+public static async updateDraft(id: string): Promise<any> {
+
+    const updateDraft = await prismaClient.order.update({
+        
+        where: {
+                order_id: id
+            },
+
+        data: {
+            draft: true
+        }
+    });
+
+    return updateDraft;
+
+
+}
+
+public static async orderDetailsServices (): Promise<any> {
+
+    const orderList = await prismaClient.order.findMany({
+        where: {
+            draft: true,
+            status: false
+        },
+
+        orderBy: {
+            created_at: 'desc'
+        }
+    });
+
+    return orderList;
+
+}
+
+public static async listOrders (order_id: string): Promise<any> {
+
+
+    const orderDetails = await prismaClient.item.findMany({
+        where: {
+            order_id_item: order_id
+        },
+
+        include: {
+            product: true,
+            order: true
+        }
+    });
+
+    return orderDetails;
+
+}
+
+public static async finishOrderServices (order_id: string): Promise<any> {
+    const updateDraft = await prismaClient.order.update({
+        
+        where: {
+                order_id,
+            },
+
+        data: {
+            status: true
+        }
+    
+    });
+
+    return updateDraft;
+}
+
+
+    
 
 }

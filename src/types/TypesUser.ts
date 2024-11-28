@@ -20,6 +20,18 @@ export type Product = {
     category_id: string
 }
 
+export type Order = {
+    table: number,
+    name: string
+}
+
+export type ItemType = {
+    order_id: string,
+    product_id: string,
+    amount: number
+}
+
+
 
 export type ExtendRequest = Request & {
     email?: string
