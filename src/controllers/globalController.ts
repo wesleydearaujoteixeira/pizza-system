@@ -1,5 +1,21 @@
 import { Request, Response } from "express";
 import ServiceUsers from "../services/ServiceUser";
+import { UploadedFile } from "express-fileupload";
+import { v2 as cloudinary, UploadApiResponse} from 'cloudinary';
+
+import dotenv from 'dotenv';
+
+
+
+dotenv.config();
+
+
+cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_NAME,
+    api_key: process.env.CLOUDINARY_KEY,
+    api_secret: process.env.CLOUDINARY_SECRET
+});
+
 
 
 export default class Controller {
@@ -20,7 +36,7 @@ export default class Controller {
         const user = await ServiceUsers.registering({name, email, password});
 
         if(user) {
-            return res.status(201).json({ message: "User registered successfully!", user });
+            return res.status(201).json({ message: "User registered successfully!", user});
         }else {
             return res.status(400).json({ message: "email já existe." });
         }
@@ -110,34 +126,57 @@ export default class Controller {
 
     }
 
+   // Ensure this matches your file upload library
+    
     public static async registerProduct(req: Request, res: Response): Promise<any> {
-
-        try {
-            
             const { name, price, description, category_id } = req.body;
-            const imagem = req.file?.filename as string;
-
-            if(!name ||!price ||!description || !category_id) {
-                return res.status(400).json({ message: "Todos os campos são obrigatórios."});
+    
+            // Validate required fields
+            if (!name || !price || !description || !category_id) {
+                return res.status(400).json({ message: "Todos os campos são obrigatórios." });
             }
-
-            if(!imagem) {
-                return res.status(400).json({ message: "Imagem é obrigatória."});
-            }
-
-            let banner = imagem;
-
-            const product = await ServiceUsers.registerProducts({name, price, description, banner, category_id});
-
-            return res.status(201).json({ message: "Product registered successfully!", product });
-
-
-
-        } catch (error) {
+    
+            // Validate if a file is uploaded
+            if (!req.files || Object.keys(req.files).length === 0) {
+                return res.status(400).json({ message: "Imagem é obrigatória." });
+            }else {
+                const file: UploadedFile = req.files['banner'] as UploadedFile;
+                
+                let banner = '';
             
-        }
+                const resultFile: UploadApiResponse  = await new Promise((resolve, reject) => {
+                cloudinary.uploader.upload_stream(
+                        { folder: "products" },
+                        (err, result) => {
+                            if (err) {
+                                console.error("Error while uploading file:", err);
+                                reject(err);
+                                return;
+                            }
+                            resolve(result);
+                        }
+                    ).end(file.data);
+    
+    
+                }).catch((error) => {
+                    return res.status(404).json(`Failed to upload file to Cloudinary: ${error.message}`);
+                }) as UploadApiResponse;
 
+
+            banner = resultFile.url;
+
+            const product = await ServiceUsers.registerProducts({ name, price, description, banner, category_id });
+            return res.status(201).json({ message: "Product registered successfully!", product });
+                
+
+            }
+
+            
+
+          
+        
     }
+    
 
     public static async getProducts(req: Request, res: Response): Promise<any> {
         

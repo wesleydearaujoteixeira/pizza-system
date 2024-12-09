@@ -129,7 +129,7 @@ export default class ServiceUsers {
 
         const products = await prismaClient.product.findMany({
             select: {
-                category_id: true,
+                product_id: true,
                 name: true,
                 price: true,
                 description: true,
@@ -227,7 +227,19 @@ export default class ServiceUsers {
 
     public static async getOrdersAll(): Promise<any> {
         
-        const orders = await prismaClient.order.findMany();
+        const orders = await prismaClient.order.findMany({
+
+            where: {
+                status: false
+            },
+
+            select: {
+                order_id: true,
+                table: true,
+                name: true,
+                status: true,
+            }
+        });
 
         return orders;
     }
@@ -314,13 +326,17 @@ public static async listOrders (order_id: string): Promise<any> {
 
     const orderDetails = await prismaClient.item.findMany({
         where: {
-            order_id_item: order_id
+            order_id_item: order_id,
+           
         },
 
         include: {
             product: true,
-            order: true
+            order: true,
         }
+
+        
+
     });
 
     return orderDetails;

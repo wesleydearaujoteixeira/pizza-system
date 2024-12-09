@@ -1,0 +1,1 @@
+{"root":["../src/server.ts","../src/controllers/globalcontroller.ts","../src/images/config.ts","../src/prisma/index.ts","../src/routes/mainrouter.ts","../src/services/serviceuser.ts","../src/services/verifytoken.ts","../src/types/typesuser.ts"],"version":"5.6.3"}
