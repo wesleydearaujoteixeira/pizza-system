@@ -24,5 +24,5 @@ app.use('/system', mainRouter);
 
 
 app.listen(process.env.PORT, () => {
-    console.log("Server is running on port http://localhost:3333");
+    console.log("Server is running on port ");
 });
